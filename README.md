@@ -1,7 +1,5 @@
 # ngCropper
 
-This is a fork to keep the rotation aspect when cropping an image.
-
 AngularJS module for https://github.com/fengyuanchen/cropper jQuery plugin.
 
 
