@@ -108,10 +108,24 @@ angular.module('ngCropper', ['ng'])
   this.crop = function(file, data) {
     var _decodeBlob = this.decode;
     return this.encode(file).then(_createImage).then(function(image) {
+      var heightOrig = image.height;
+      var widthOrig = image.width;
+      var rotate = data.rotate * Math.PI / 180;
+
       var canvas = createCanvas(data);
       var context = canvas.getContext('2d');
 
-      context.drawImage(image, data.x, data.y, data.width, data.height, 0, 0, data.width, data.height);
+      var offscreenCanvas = document.createElement('canvas');
+      var offscreenCtx = offscreenCanvas.getContext('2d');
+      offscreenCanvas.width = widthOrig;
+      offscreenCanvas.height = heightOrig;
+      offscreenCtx.save();
+      offscreenCtx.translate(widthOrig / 2, heightOrig / 2);
+      offscreenCtx.rotate(rotate);
+      offscreenCtx.drawImage(image,-widthOrig/2, -heightOrig/2);
+      offscreenCtx.restore();
+
+      context.drawImage(offscreenCanvas, data.x, data.y, data.width, data.height, 0, 0, data.width, data.height);
 
       var encoded = canvas.toDataURL(file.type);
       removeElement(canvas);
