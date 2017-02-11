@@ -108,10 +108,11 @@ angular.module('ngCropper', ['ng'])
   this.crop = function(file, data) {
     var _decodeBlob = this.decode;
     return this.encode(file).then(_createImage).then(function(image) {
+
       var canvas = createCanvas(data);
       var context = canvas.getContext('2d');
-
-      context.drawImage(image, data.x, data.y, data.width, data.height, 0, 0, data.width, data.height);
+      var rotatedImage = drawRotated(data.rotate, image);
+      context.drawImage(rotatedImage, data.x, data.y, data.width, data.height, 0, 0, data.width, data.height);
 
       var encoded = canvas.toDataURL(file.type);
       removeElement(canvas);
@@ -119,6 +120,32 @@ angular.module('ngCropper', ['ng'])
       return _decodeBlob(encoded);
     });
   };
+
+  function drawRotated(degrees, image){
+
+    var canvas = document.createElement("canvas");
+    var ctx=canvas.getContext("2d");
+    canvas.style.width="20%";
+
+    if(degrees === 90 || degrees === 270) {
+      canvas.width = image.height;
+      canvas.height = image.width;
+    } else {
+      canvas.width = image.width;
+      canvas.height = image.height;
+    }
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    if(degrees === 90 || degrees === 270) {
+      ctx.translate(image.height/2,image.width/2);
+    } else {
+      ctx.translate(image.width/2,image.height/2);
+    }
+    ctx.rotate(degrees*Math.PI/180);
+    ctx.drawImage(image,-image.width/2,-image.height/2);
+
+    return canvas;
+  }
 
   this.scale = function(file, data) {
     var _decodeBlob = this.decode;
